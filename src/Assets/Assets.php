@@ -43,7 +43,7 @@ class Assets
     {
         return register_asset(
             $this->manifestDir,
-            'src/' . $fileName,
+            $fileName,
             [
                 'handle' => $handle,
                 'base-url' => $this->baseURL,

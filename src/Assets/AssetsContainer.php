@@ -26,7 +26,10 @@ class AssetsContainer
         return $this;
     }
 
-    public function frontendEnqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): void
+    public function frontendEnqueue(
+        string $name,
+        ?string $inline_js_var_name = null,
+        array | callable $inline_js_data = []): void
     {
         if (did_action('wp_enqueue_scripts')) {
             $this->enqueue($name, $inline_js_var_name, $inline_js_data);
@@ -35,7 +38,10 @@ class AssetsContainer
         }
     }
 
-    public function adminEnqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): void
+    public function adminEnqueue(
+        string $name,
+        ?string $inline_js_var_name = null,
+        array | callable $inline_js_data = []): void
     {
         if (did_action('admin_enqueue_scripts')) {
             $this->enqueue($name, $inline_js_var_name, $inline_js_data);
@@ -44,7 +50,10 @@ class AssetsContainer
         }
     }
 
-    public function enqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): static
+    public function enqueue(
+        string $name,
+        ?string $inline_js_var_name = null,
+        array | callable $inline_js_data = []): static
     {
         do_action("iamntz/wp-vite-manifest/assets/register/{$name}", $this);
 
@@ -56,7 +65,7 @@ class AssetsContainer
             do_action("iamntz/wp-vite-manifest/assets/register/{$handle}", $this, $name);
 
             if ($inline_js_var_name) {
-                $this->localize($handle, $inline_js_var_name, $inline_js_data);
+                $this->inlineScript($handle, $inline_js_var_name, $inline_js_data);
             }
 
             wp_enqueue_script($handle);
@@ -89,10 +98,13 @@ class AssetsContainer
         return $this;
     }
 
-    public function localize(string $handle, $object_name, array $data = []): void
+    public function inlineScript(string $handle, $object_name, callable | array $data = []): void
     {
-        $data = apply_filters("iamntz/wp-vite-manifest/localize/{$handle}", $data, $object_name);
+        $data = apply_filters("iamntz/wp-vite-manifest/inline-script/{$handle}", $data, $object_name);
 
+        if (is_callable($data)) {
+            $data = call_user_func($data);
+        }
         wp_add_inline_script($handle, "const {$object_name} = " . json_encode($data), 'before');
     }
 }

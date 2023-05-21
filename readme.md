@@ -100,7 +100,7 @@ Register assets like so:
 $assetsContainer = new AssetsContainer();
 $assets = new Assets(
   [
-    'my-custom-script-name' => ['handle' => 'your-script-name-handle-registered-to-wp', 'src' => 'your-script-name-as-it-is-inside-manifest-without-src-prefix'],
+    'my-custom-script-name' => ['handle' => 'your-script-name-handle-registered-to-wp', 'src' => 'your-script-name-as-it-is-inside-manifest'],
     // ... register as many assets as you need
   ], 
   plugins_url('assets/dist', __FILE__), // <<< the URL of where the build files are stored
@@ -130,6 +130,14 @@ $assetsContainer->enqueue('your-script-name', 'my_inline_js', [
   'foo' => 'bar'
 ]);
 ```
+
+You can even have a callable as a third param, so you have a lazy callback:
+```php
+$assetsContainer->enqueue('your-script-name', 'my_inline_js', fn() => [
+  'foo' => 'bar'
+]);
+```
+
 
 Then in your JS code you'll use:
 
