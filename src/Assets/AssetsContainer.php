@@ -48,7 +48,11 @@ class AssetsContainer
     {
         do_action("iamntz/wp-vite-manifest/assets/register/{$name}", $this);
 
-        foreach ($this->assets[$name]['scripts'] as $handle) {
+        if (!isset($this->assets[$name]) && defined('WP_DEBUG') && WP_DEBUG) {
+            throw new \Exception("Invalid asset name: {$name}");
+        }
+
+        foreach (($this->assets[$name]['scripts'] ?? []) as $handle) {
             do_action("iamntz/wp-vite-manifest/assets/register/{$handle}", $this, $name);
 
             if ($inline_js_var_name) {
