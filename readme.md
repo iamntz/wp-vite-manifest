@@ -97,15 +97,18 @@ VITE_HTTPS_KEY=/etc/ssl/certs/custom_certs/_cert-key.pem
 Register assets like so:
 
 ```php
-new Assets(
+$assetsContainer = new AssetsContainer();
+$assets = new Assets(
   [
-    'your-script-name' => ['handle' => 'your-script-name-handle-registered-to-wp', 'src' => 'your-script-name.js'],
+    'my-custom-script-name' => ['handle' => 'your-script-name-handle-registered-to-wp', 'src' => 'your-script-name-as-it-is-inside-manifest-without-src-prefix'],
     // ... register as many assets as you need
   ], 
   plugins_url('assets/dist', __FILE__), // <<< the URL of where the build files are stored
   plugin_dir_path(__FILE__) . 'assets/dist', // <<< the PATH of the manifest' **directory**
-  AssetsContainer::instance()
+  $assetsContainer
 );
+
+$assets->hooks();
 ```
 
 Note that you don't have to worry about `wp_enqueue_scripts` hook; this must be run as early as possible!
@@ -115,13 +118,15 @@ Note that you don't have to worry about `wp_enqueue_scripts` hook; this must be 
 Note that you don't have to use the WP handle, but the handle you used to register the asset inside the `Assets` class!
 
 ```php
-AssetsContainer::instance()->enqueue('your-script-name');
+$assetsContainer->enqueue('my-custom-script-name'); // this must be called _after_ `wp_enqueue_scripts` was triggered
+$assetsContainer->frontendEnqueue('my-custom-script-name'); // this must be called at any time 
+$assetsContainer->adminEnqueue('my-custom-script-name'); // this must be called at any time
 ```
 
 You can also add an inline script (e.g. used for JS config):
 
 ```php
-AssetsContainer::instance()->enqueue('your-script-name', 'my_inline_js', [
+$assetsContainer->enqueue('your-script-name', 'my_inline_js', [
   'foo' => 'bar'
 ]);
 ```

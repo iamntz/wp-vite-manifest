@@ -10,14 +10,11 @@ class AssetsContainer
     private array $assets = [];
     private array $enqueued = [];
 
-
     public function __construct() {}
 
     public static function instance(): AssetsContainer
     {
-        if ( !self::$instance ) {
-            self::$instance = new self();
-        }
+        self::$instance ??= new self();
 
         return self::$instance;
     }
@@ -27,6 +24,24 @@ class AssetsContainer
         $this->assets[$name] = $asset;
 
         return $this;
+    }
+
+    public function frontendEnqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): void
+    {
+        if (did_action('wp_enqueue_scripts')) {
+            $this->enqueue($name, $inline_js_var_name, $inline_js_data);
+        } else {
+            add_action('wp_enqueue_scripts', fn() => $this->enqueue($name, $inline_js_var_name, $inline_js_data), 10, 1);
+        }
+    }
+
+    public function adminEnqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): void
+    {
+        if (did_action('admin_enqueue_scripts')) {
+            $this->enqueue($name, $inline_js_var_name, $inline_js_data);
+        } else {
+            add_action('admin_enqueue_scripts', fn() => $this->enqueue($name, $inline_js_var_name, $inline_js_data), 10, 1);
+        }
     }
 
     public function enqueue(string $name, ?string $inline_js_var_name = null, array $inline_js_data = []): static
@@ -73,7 +88,7 @@ class AssetsContainer
     public function localize(string $handle, $object_name, array $data = []): void
     {
         $data = apply_filters("iamntz/wp-vite-manifest/localize/{$handle}", $data, $object_name);
-        
+
         wp_add_inline_script($handle, "const {$object_name} = " . json_encode($data), 'before');
     }
 }

@@ -6,7 +6,13 @@ use function iamntz\WpViteManifest\functions\register_asset;
 
 class Assets
 {
-    public function __construct(private readonly array $assets, private string $baseURL, private string $manifestDir, private readonly AssetsContainer $assetsContainer)
+    public function __construct(
+        private readonly array $assets,
+        private readonly string $baseURL,
+        private readonly string $manifestDir,
+        private readonly AssetsContainer $assetsContainer) {}
+
+    public function hooks(): void
     {
         add_action('admin_enqueue_scripts', [$this, '_registerAssets']);
         add_action('wp_enqueue_scripts', [$this, '_registerAssets']);
