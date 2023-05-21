@@ -1,0 +1,19 @@
+{
+    "name": "iamntz/wp-vite-manifest",
+    "description": "Add support for vite manifest inside wp so you can load assets from generated vite manifest and have HMR enabled.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "files": ["src/functions/vite-manifest.php"],
+        "psr-4": {
+            "iamntz\\WpViteManifest\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ionuț Staicu",
+            "email": "github@iamntz.com"
+        }
+    ],
+    "require": {}
+}
