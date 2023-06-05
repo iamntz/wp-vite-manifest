@@ -57,9 +57,10 @@ function get_manifest(string $manifest_dir): object
         $is_dev = true;
         $manifest_content = apply_filters('iamntz/wp-vite-manifest/vite-manifest-dev', [
             "base" => "/",
-            "origin" => "https://0.0.0.0",
-            "port" => "3003",
+            "origin" => getenv('WP_VITE_MANIFEST_ORIGIN') ?: "https://0.0.0.0",
+            "port" => getenv('VITE_SERVER_PORT') ?: 3000,
             "plugins" => [],
+            "manifest_dir" => $manifest_dir,
         ]);
 
         $manifest_content['origin'] .= ':' . $manifest_content['port'];
