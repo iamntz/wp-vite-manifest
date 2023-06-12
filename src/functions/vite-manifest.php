@@ -293,8 +293,13 @@ function load_production_asset(object $manifest, string $entry, array $options, 
     if (!empty($item->imports)) {
         foreach ($item->imports as $k => $import) {
             $imports = load_production_asset($manifest, $import, $options, '_' . $handleSuffix . $k);
-            $options['dependencies'] = array_merge($options['dependencies'], $imports['scripts'] ?? []);
-            $options['css-dependencies'] = array_merge($options['dependencies'], $imports['styles'] ?? []);
+            if (!$options['skip-js-dependencies']) {
+                $options['dependencies'] = array_merge($options['dependencies'], $imports['scripts'] ?? []);
+            }
+
+            if (!$options['skip-css-dependencies']) {
+                $options['css-dependencies'] = array_merge($options['dependencies'], $imports['styles'] ?? []);
+            }
         }
     }
 
@@ -340,12 +345,16 @@ function parse_options(array $options): array
         'css-media' => 'all',
         'css-only' => false,
         'dependencies' => [],
+        // js deps is imported via js `import * from ....`. This remains here for edge cases/legacy.
+        'skip-js-dependencies' => true,
+        // css deps are automatically imported, but you have the option to disable this.
+        'skip-css-dependencies' => false,
         'handle' => '',
         'in-footer' => false,
         'base-url' => '',
     ];
 
-    return wp_parse_args($options, $defaults);
+    return apply_filters('iamntz/wp-vite-manifest/options', wp_parse_args($options, $defaults));
 }
 
 
