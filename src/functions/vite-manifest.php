@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace iamntz\WpViteManifest\functions;
 
-!defined('ABSPATH') && die();
-
 /**
  * Vite integration for WordPress
  *
