@@ -11,6 +11,7 @@ namespace iamntz\WpViteManifest\functions;
  */
 
 use Exception;
+use iamntz\WpViteManifest\Assets\ManifestParser;
 
 const VITE_CLIENT_SCRIPT_HANDLE = 'vite-client';
 
@@ -280,27 +281,8 @@ function load_production_asset(object $manifest, string $entry, array $options, 
         return null;
     }
 
-    $assets = [
-        'scripts' => [],
-        'styles' => [],
-    ];
-
     $item = $manifest->data->{$entry};
     $src = "{$url}/{$item->file}";
-
-    // potential fix for #1. Do we even need this though?
-    // if (!empty($item->imports)) {
-    //     foreach ($item->imports as $k => $import) {
-    //         $imports = load_production_asset($manifest, $import, $options, '_' . $handleSuffix . $k);
-    //         if (!$options['skip-js-dependencies']) {
-    //             $options['dependencies'] = array_merge($options['dependencies'], $imports['scripts'] ?? []);
-    //         }
-
-    //         if (!$options['skip-css-dependencies']) {
-    //             $options['css-dependencies'] = array_merge($options['dependencies'], $imports['styles'] ?? []);
-    //         }
-    //     }
-    // }
 
     if (!$options['css-only']) {
         filter_script_tag($options['handle']);
@@ -313,7 +295,9 @@ function load_production_asset(object $manifest, string $entry, array $options, 
     }
 
     if (!empty($item->css)) {
-        foreach ($item->css as $index => $css_file_path) {
+        $m = new ManifestParser($manifest->data);
+
+        foreach ($m->getCss($entry) as $index => $css_file_path) {
             $style_handle = "{$options['handle']}-{$index}";
             // Don't worry about browser caching as the version is embedded in the file name.
             // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
