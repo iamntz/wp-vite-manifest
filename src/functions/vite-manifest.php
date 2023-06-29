@@ -288,18 +288,19 @@ function load_production_asset(object $manifest, string $entry, array $options, 
     $item = $manifest->data->{$entry};
     $src = "{$url}/{$item->file}";
 
-    if (!empty($item->imports)) {
-        foreach ($item->imports as $k => $import) {
-            $imports = load_production_asset($manifest, $import, $options, '_' . $handleSuffix . $k);
-            if (!$options['skip-js-dependencies']) {
-                $options['dependencies'] = array_merge($options['dependencies'], $imports['scripts'] ?? []);
-            }
+    // potential fix for #1. Do we even need this though?
+    // if (!empty($item->imports)) {
+    //     foreach ($item->imports as $k => $import) {
+    //         $imports = load_production_asset($manifest, $import, $options, '_' . $handleSuffix . $k);
+    //         if (!$options['skip-js-dependencies']) {
+    //             $options['dependencies'] = array_merge($options['dependencies'], $imports['scripts'] ?? []);
+    //         }
 
-            if (!$options['skip-css-dependencies']) {
-                $options['css-dependencies'] = array_merge($options['dependencies'], $imports['styles'] ?? []);
-            }
-        }
-    }
+    //         if (!$options['skip-css-dependencies']) {
+    //             $options['css-dependencies'] = array_merge($options['dependencies'], $imports['styles'] ?? []);
+    //         }
+    //     }
+    // }
 
     if (!$options['css-only']) {
         filter_script_tag($options['handle']);
