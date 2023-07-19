@@ -284,6 +284,11 @@ function load_production_asset(object $manifest, string $entry, array $options, 
     $item = $manifest->data->{$entry};
     $src = "{$url}/{$item->file}";
 
+    $assets = [
+        'scripts' => [],
+        'styles' => [],
+    ];
+    
     if (!$options['css-only']) {
         filter_script_tag($options['handle']);
 
