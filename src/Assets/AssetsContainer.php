@@ -55,13 +55,16 @@ class AssetsContainer
         ?string $inline_js_var_name = null,
         array | callable $inline_js_data = []): static
     {
-        do_action("iamntz/wp-vite-manifest/assets/register/{$name}", $this);
+        do_action("iamntz/wp-vite-manifest/assets/register", $this, $name);
+        do_action("iamntz/wp-vite-manifest/assets/register/{$name}", $this, $name);
 
         if (!isset($this->assets[$name]) && defined('WP_DEBUG') && WP_DEBUG) {
             throw new \Exception("Invalid asset name: {$name}");
         }
 
-        foreach (($this->assets[$name]['scripts'] ?? []) as $handle) {
+        $assets = apply_filters('iamntz/wp-vite-manifest/assets/to-enqueue',$this->assets[$name], $this, $name);
+
+        foreach (($assets['scripts'] ?? []) as $handle) {
             do_action("iamntz/wp-vite-manifest/assets/register/{$handle}", $this, $name);
 
             if ($inline_js_var_name) {
@@ -74,7 +77,7 @@ class AssetsContainer
         if (did_action('wp_enqueue_scripts') || did_action('admin_enqueue_scripts')) {
             $styles = wp_styles();
 
-            foreach ($this->assets[$name]['styles'] as $handle) {
+            foreach ($assets['styles'] as $handle) {
                 if (!isset($styles->registered[$handle])) {
                     continue;
                 }
@@ -91,7 +94,7 @@ class AssetsContainer
             return $this;
         }
 
-        foreach ($this->assets[$name]['styles'] as $handle) {
+        foreach ($assets['styles'] as $handle) {
             wp_enqueue_style($handle);
         }
 
@@ -100,6 +103,7 @@ class AssetsContainer
 
     public function inlineScript(string $handle, $object_name, callable | array $data = []): void
     {
+        $data = apply_filters("iamntz/wp-vite-manifest/inline-script", $data, $object_name, $handle);
         $data = apply_filters("iamntz/wp-vite-manifest/inline-script/{$handle}", $data, $object_name);
 
         if (is_callable($data)) {
