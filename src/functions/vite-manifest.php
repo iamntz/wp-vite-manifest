@@ -150,13 +150,21 @@ function set_script_type_attribute(string $target_handle, string $tag, string $h
  */
 function generate_development_asset_src(object $manifest, string $entry): string
 {
-    $origin = get_site_url() . ":{$manifest->data->port}";
+    $origin = apply_filters('iamntz/wp-vite-manifest/development_assets_origin', get_home_url() . ":{$manifest->data->port}", $manifest, $entry);
+
+    $path = apply_filters(
+        'iamntz/wp-vite-manifest/development_asset_path',
+        trim(preg_replace('/[\/]{2,}/', '/', "{$manifest->data->base}/{$entry}"), '/'),
+        $manifest, $entry
+    );
+
     return sprintf(
         '%s/%s',
         untrailingslashit($origin),
-        trim(preg_replace('/[\/]{2,}/', '/', "{$manifest->data->base}/{$entry}"), '/')
+        $path
     );
 }
+
 
 /**
  * Register vite client script
