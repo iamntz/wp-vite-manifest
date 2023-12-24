@@ -21,7 +21,7 @@ class Assets
     public function _registerAssets(): void
     {
         foreach ($this->assets as $containerHandle => $item) {
-            $this->assetsContainer->register($containerHandle, $this->register($item['handle'], $item['src']));
+            $this->assetsContainer->register($containerHandle, $this->register($item));
 
             if (!($item['enqueue'] ?? false)) {
                 continue;
@@ -39,14 +39,15 @@ class Assets
         }
     }
 
-    private function register(string $handle, string $fileName): ?array
+    private function register(array $item): ?array
     {
         return register_asset(
             $this->manifestDir,
-            $fileName,
+            $item['src'],
             [
-                'handle' => $handle,
+                'handle' => $item['handle'],
                 'base-url' => $this->baseURL,
+                'dependencies' => $item['dependencies'] ?? [],
             ]
         );
     }
