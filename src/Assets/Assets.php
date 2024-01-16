@@ -23,6 +23,10 @@ class Assets
         foreach ($this->assets as $containerHandle => $item) {
             $this->assetsContainer->register($containerHandle, $this->register($item));
 
+            add_action("iamntz/vite/{$containerHandle}", fn() => $this->assetsContainer->enqueue($containerHandle));
+            add_action("iamntz/vite/frontend/{$containerHandle}", fn() => $this->assetsContainer->frontendEnqueue($containerHandle));
+            add_action("iamntz/vite/admin/{$containerHandle}", fn() => $this->assetsContainer->adminEnqueue($containerHandle));
+
             if (!($item['enqueue'] ?? false)) {
                 continue;
             }
