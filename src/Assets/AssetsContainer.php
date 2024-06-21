@@ -56,7 +56,6 @@ class AssetsContainer
         array | callable $inline_js_data = []): static
     {
         do_action("iamntz/wp-vite-manifest/assets/register", $this, $name);
-        do_action("iamntz/wp-vite-manifest/assets/register/{$name}", $this, $name);
 
         if (!isset($this->assets[$name]) && defined('WP_DEBUG') && WP_DEBUG) {
             throw new \Exception("Invalid asset name: {$name}");
