@@ -7,10 +7,10 @@ use function iamntz\WpViteManifest\functions\register_asset;
 class Assets
 {
     public function __construct(
-        private readonly array $assets,
-        private readonly string $baseURL,
-        private readonly string $manifestDir,
-        private readonly AssetsContainer $assetsContainer) {}
+        private array $assets,
+        private string $baseURL,
+        private string $manifestDir,
+        private AssetsContainer $assetsContainer) {}
 
     public function hooks(): void
     {
