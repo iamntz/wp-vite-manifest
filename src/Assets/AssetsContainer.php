@@ -52,7 +52,7 @@ class AssetsContainer
 
     public function enqueue(
         string $name,
-        ?string $inline_js_var_name = null,
+        null | string | array $inline_js_var_name = null,
         array | callable $inline_js_data = []): static
     {
         do_action("iamntz/wp-vite-manifest/assets/register", $this, $name);
@@ -61,7 +61,7 @@ class AssetsContainer
             throw new \Exception("Invalid asset name: {$name}");
         }
 
-        $assets = apply_filters('iamntz/wp-vite-manifest/assets/to-enqueue',$this->assets[$name], $this, $name);
+        $assets = apply_filters('iamntz/wp-vite-manifest/assets/to-enqueue', $this->assets[$name], $this, $name);
 
         foreach (($assets['scripts'] ?? []) as $handle) {
             do_action("iamntz/wp-vite-manifest/assets/register/{$handle}", $this, $name);
@@ -100,7 +100,13 @@ class AssetsContainer
         return $this;
     }
 
-    public function inlineScript(string $handle, $object_name, callable | array $data = []): void
+    /**
+     * @param string            $handle
+     * @param string|tuple|null $object_name if it's an tuple: [handleName, handleID]
+     * @param callable|array    $data
+     * @return void
+     */
+    public function inlineScript(string $handle, null | string | array $object_name, callable | array $data = []): void
     {
         $data = apply_filters("iamntz/wp-vite-manifest/inline-script", $data, $object_name, $handle);
         $data = apply_filters("iamntz/wp-vite-manifest/inline-script/{$handle}", $data, $object_name);
@@ -108,6 +114,12 @@ class AssetsContainer
         if (is_callable($data)) {
             $data = call_user_func($data);
         }
-        wp_add_inline_script($handle, "const {$object_name} = " . json_encode($data), 'before');
+
+        if (is_array($object_name)) {
+            wp_add_inline_script($handle, "window.{$object_name[0]} = window.{$object_name[0]} || {}", 'before');
+            wp_add_inline_script($handle, "window.{$object_name[0]}[ '{$object_name[1]}' ] = " . json_encode($data), 'before');
+        } else {
+            wp_add_inline_script($handle, "const {$object_name} = " . json_encode($data), 'before');
+        }
     }
 }

@@ -102,7 +102,7 @@ $assets = new Assets(
   [
     'my-custom-script-name' => ['handle' => 'your-script-name-handle-registered-to-wp', 'src' => 'your-script-name-as-it-is-inside-manifest'],
     // ... register as many assets as you need
-  ], 
+  ],
   plugins_url('assets/dist', __FILE__), // <<< the URL of where the build files are stored
   plugin_dir_path(__FILE__) . 'assets/dist', // <<< the PATH of the manifest' **directory**
   $assetsContainer
@@ -119,7 +119,7 @@ Note that you don't have to use the WP handle, but the handle you used to regist
 
 ```php
 $assetsContainer->enqueue('my-custom-script-name'); // this must be called _after_ `wp_enqueue_scripts` was triggered
-$assetsContainer->frontendEnqueue('my-custom-script-name'); // this must be called at any time 
+$assetsContainer->frontendEnqueue('my-custom-script-name'); // this must be called at any time
 $assetsContainer->adminEnqueue('my-custom-script-name'); // this must be called at any time
 ```
 
@@ -138,9 +138,29 @@ $assetsContainer->enqueue('your-script-name', 'my_inline_js', fn() => [
 ]);
 ```
 
-
 Then in your JS code you'll use:
 
 ```javascript
 console.log(my_inline_js)
+```
+
+If you want, you can also have the second argument as a tuple, so you can use the generated component on multiple instances (e.g. on Elementor Widgets):
+
+```php
+$assetsContainer->enqueue('your-script-name', ['the_global_object_var_name', 'the_id'], fn() => [
+  'foo' => 'bar'
+]);
+```
+
+Which internally will generate a code similar to this:
+
+```javascript
+window.the_global_object_var_name = window.the_global_object_var_name || {}
+window.the_global_object_var_name['the_id'] = { foo: 'bar' }
+```
+
+You'll then use it like so:
+
+```javascript
+console.log( the_global_object_var_name['the_id'] )
 ```
