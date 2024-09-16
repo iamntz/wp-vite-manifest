@@ -57,8 +57,11 @@ class AssetsContainer
     {
         do_action("iamntz/wp-vite-manifest/assets/register", $this, $name);
 
-        if (!isset($this->assets[$name]) && defined('WP_DEBUG') && WP_DEBUG) {
-            throw new \Exception("Invalid asset name: {$name}");
+        if (!isset($this->assets[$name])) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                throw new \Exception("Invalid asset name: {$name}");
+            }
+            return $this;
         }
 
         $assets = apply_filters('iamntz/wp-vite-manifest/assets/to-enqueue', $this->assets[$name], $this, $name);
