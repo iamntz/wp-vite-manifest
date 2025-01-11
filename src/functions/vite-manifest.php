@@ -75,7 +75,7 @@ function get_manifest(string $manifest_dir): object
         'is_dev' => $is_dev,
     ];
 
-    return $manifests[$manifest_path];
+    return apply_filters('iamntz/wp-vite-manifest/the-manifest', $manifests[$manifest_path]);
 }
 
 /**
