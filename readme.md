@@ -6,6 +6,115 @@ Inside `package.json` scripts, add `--host` argument: `"dev": "vite --host"` & r
 
 Update your `vite.config` so it will include `server` settings & enable manifest:
 
+### If you're using DDEV:
+
+Add this in your `.ddev/config.yaml`:
+
+```yaml
+web_extra_exposed_ports:
+    - name: vite
+      container_port: 3027
+      http_port: 3026
+      https_port: 3027
+```
+
+```javascript
+import {resolve} from 'path';
+import {fileURLToPath, URL} from 'node:url'
+import fs from "fs";
+
+import {defineConfig, splitVendorChunkPlugin} from 'vite'
+import vue from '@vitejs/plugin-vue'
+import dotenv from 'dotenv';
+
+dotenv.config(); // load env vars from .env
+
+const port = 3027;
+const origin = `${process.env.DDEV_PRIMARY_URL}:${port}`;
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  server: {
+      // respond to all network requests:
+      host: "0.0.0.0",
+      port,
+      origin,
+      strictPort: true,
+      allowedHosts: true,
+      cors: {
+          methods:"*",
+          preflightContinue: true
+      },
+  },
+
+  esbuild: {
+    drop: process.env.NODE_ENV === 'development' ? [] :  ['console', 'debugger'],
+    sourcemap: false,
+  },
+
+  plugins: [vue(), splitVendorChunkPlugin()],
+  build: {
+    manifest: true,
+    cssCodeSplit: true,
+    sourcemap: true,
+    assetsDir: '',
+    minify: 'esbuild',
+    rollupOptions: {
+      // https://rollupjs.org/configuration-options/
+      input: {
+        'your-script-name': resolve(__dirname, 'src/your-script-name.js'),
+      },
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
+})
+```
+
+Additionally, you may need to override the URL (useful in multisite installs):
+
+```php
+// wp-content/mu-plugins/vite.php
+add_filter('iamntz/wp-vite-manifest/development_assets_origin', function ($origin, $manifest, $entry) {
+    return "https://your-url:3027";
+}, 10, 3);
+```
+
+Bonus: detect if vite is running or not and either load pre-compiled assets or vite assets:
+```php
+// wp-content/mu-plugins/vite.php
+add_filter('iamntz/wp-vite-manifest/the-manifest', function ($data) {
+    $hasDevRunning = (int) wp_remote_retrieve_response_code(wp_remote_get( 'https://your-url:3027/@vite/client', ['timeout' => 10]));
+
+    if ($hasDevRunning !== 200) {
+        return $data;
+    }
+
+    $manifest = [
+        "base" => "/",
+        "origin" => getenv('DDEV_PRIMARY_URL') ?: "https://0.0.0.0:3027",
+        "port" => 3027,
+        "plugins" => [],
+        "manifest_dir" => $data->dir,
+    ];
+
+    $data = [
+        'data' => (object) $manifest,
+        'dir' => $data->dir,
+        'is_dev' => true,
+    ];
+
+    return (object) $data;
+}, 10);
+```
+
+---
+
+### If you're not using DDEV
 ```javascript
 import {resolve} from 'path';
 import {fileURLToPath, URL} from 'node:url'
