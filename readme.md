@@ -2,11 +2,11 @@ Add Vite integration for WP. `vite-manifest.php` is a forked version of [kucrut/
 
 ## How to configure vite:
 
-Inside `package.json` scripts, add `--host` argument: `"dev": "vite --host"` & run `npm install dotenv`.
-
 Update your `vite.config` so it will include `server` settings & enable manifest:
 
 ### If you're using DDEV:
+
+Run `npm install dotenv`. Run the build as `ddev npm run vite`
 
 Add this in your `.ddev/config.yaml`:
 
@@ -114,7 +114,10 @@ add_filter('iamntz/wp-vite-manifest/the-manifest', function ($data) {
 
 ---
 
-### If you're not using DDEV
+### If you're NOT using DDEV:
+
+Inside `package.json` scripts, add `--host` argument: `"dev": "vite --host"` & run `npm install dotenv`.
+
 ```javascript
 import {resolve} from 'path';
 import {fileURLToPath, URL} from 'node:url'
@@ -200,6 +203,9 @@ VITE_SERVER_PORT=3003
 VITE_HTTPS_CERT=/etc/ssl/certs/custom_certs/_cert.pem
 VITE_HTTPS_KEY=/etc/ssl/certs/custom_certs/_cert-key.pem
 ```
+
+----
+
 
 ## How to use inside your WP plugin:
 
