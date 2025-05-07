@@ -13,7 +13,7 @@ Add this in your `.ddev/config.yaml`:
 ```yaml
 web_extra_exposed_ports:
     - name: vite
-      container_port: 3027
+      container_port: 3027 # <<< we'll use this port number below
       http_port: 3026
       https_port: 3027
 ```
@@ -29,8 +29,7 @@ import dotenv from 'dotenv';
 
 dotenv.config(); // load env vars from .env
 
-const port = 3027;
-const origin = `${process.env.DDEV_PRIMARY_URL}:${port}`;
+const port = 3027; // <<< The port defined in `web_extra_exposed_ports.container_port` above
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -38,12 +37,12 @@ export default defineConfig({
       // respond to all network requests:
       host: "0.0.0.0",
       port,
-      origin,
       strictPort: true,
-      allowedHosts: true,
-      cors: { // read this: https://dev.to/mandrasch/vite-is-suddenly-not-working-anymore-due-to-cors-error-ddev-3673
-          methods:"*",
-          preflightContinue: true
+      origin: `${process.env.DDEV_PRIMARY_URL}:${port}`,
+      cors: {
+          methods: "*",
+          preflightContinue: true,
+          origin: new RegExp('https?://(' + process.env.DDEV_HOSTNAME.split(',').join('|') + ')(?::\\d+)?$'),
       },
   },
 
