@@ -41,7 +41,7 @@ export default defineConfig({
       origin,
       strictPort: true,
       allowedHosts: true,
-      cors: {
+      cors: { // read this: https://dev.to/mandrasch/vite-is-suddenly-not-working-anymore-due-to-cors-error-ddev-3673
           methods:"*",
           preflightContinue: true
       },
@@ -133,7 +133,7 @@ dotenv.config(); // load env vars from .env
 const _server = {
   port: 3003,
   strictPort: true,
-  cors: false,
+  cors: false, // read this: https://dev.to/mandrasch/vite-is-suddenly-not-working-anymore-due-to-cors-error-ddev-3673
   headers: {
     'Access-Control-Allow-Origin': '*',
   },
